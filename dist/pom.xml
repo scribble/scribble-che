@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright 2016 Red Hat, Inc. and/or its affiliates
+    and other contributors as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>org.scribble.tools.che</groupId>
+    <artifactId>scribble-che-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>scribble-che-dist</artifactId>
+  <name>Scribble Che::Distribution</name>
+  <packaging>pom</packaging>
+
+  <properties>
+    <che.dist>https://github.com/eclipse/che/archive/${version.org.eclipse.che}.zip</che.dist>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.eclipse.che</groupId>
+      <artifactId>assembly-main</artifactId>
+      <type>zip</type>
+    </dependency>
+    <dependency>
+      <groupId>org.scribble.tools.che</groupId>
+      <artifactId>scribble-tools-che-ide</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.scribble.tools.che</groupId>
+      <artifactId>scribble-tools-che-server</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>unpack-eclipse-che</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/che</outputDirectory>
+              <includeArtifactIds>assembly-main</includeArtifactIds>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-ide</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/che/eclipse-che-${version.org.eclipse.che}/plugins/ide</outputDirectory>
+              <includeArtifactIds>scribble-tools-che-ide</includeArtifactIds>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-server</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/che/eclipse-che-${version.org.eclipse.che}/plugins/ws-agent</outputDirectory>
+              <includeArtifactIds>scribble-tools-che-server</includeArtifactIds>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
+        <executions>
+          <execution>
+            <id>download-files</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <echo message="Running Ant Tasks....."/>
+                <exec executable="${basedir}/target/che/eclipse-che-${version.org.eclipse.che}/bin/che-install-plugin.sh"
+                         dir="${basedir}/target/che/eclipse-che-${version.org.eclipse.che}/bin"
+                         failonerror="true"
+                         osfamily="unix"/>
+               </target>
+             </configuration>
+           </execution>
+         </executions>
+      </plugin>
+      
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/scripts/distro-assembly.xml</descriptor>
+          </descriptors>
+          <appendAssemblyId>false</appendAssemblyId>
+        </configuration>
+        <executions>
+          <execution>
+            <id>distro-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
+    </plugins>
+  </build>
+</project>
+

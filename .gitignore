@@ -10,3 +10,33 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# maven target directories
+target/
+bin/
+
+# IntelliJ
+.idea
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings
+
+# KDE
+.directory
+
+# OSX
+.DS_Store
+
+# Hawt.io 2 console
+d.ts/
+node_modules/
+libs/
+defs.d.ts
+
+.tern-project
+
+*.log
+
